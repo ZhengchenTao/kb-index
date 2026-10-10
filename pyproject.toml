@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kb-index"
+version = "0.2.0"
+description = "Hybrid (vector + BM25) search over several Markdown repositories in one SQLite file, served to AI agents over MCP"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Zhengchen Tao", email = "zhengchen.tao@outlook.com" }]
+requires-python = ">=3.12"
+keywords = ["mcp", "rag", "embeddings", "sqlite", "fts5", "markdown", "obsidian", "knowledge-base"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing :: Indexing",
+]
+dependencies = [
+    "numpy>=1.26",
+    "pyyaml>=6",
+    "mcp>=2,<3",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/ZhengchenTao/kb-index"
+Source = "https://github.com/ZhengchenTao/kb-index"
+Issues = "https://github.com/ZhengchenTao/kb-index/issues"
+
+[project.scripts]
+idx = "kbindex.cli:main"
+kb-index-mcp = "kbindex.mcp_server:main"
+
+[tool.setuptools]
+packages = ["kbindex"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,49 @@
+name: test
+
+# Runs pytest in a throwaway python:3.12-slim container.
+# Written for a Gitea act_runner in host mode: the step shell has git and a docker CLI but no Python, and
+# action references like actions/checkout resolve to a host the runner may not reach. So the source is
+# fetched with plain git, streamed into the container with tar (no bind mounts, which would need host paths),
+# and nothing outside this file is assumed.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch source
+        run: |
+          set -e
+          rm -rf src && mkdir src && cd src
+          git init -q
+          git -c http.extraheader="Authorization: token ${{ github.token }}" \
+              fetch -q --depth 1 "${{ github.server_url }}/${{ github.repository }}.git" "${{ github.ref }}"
+          git checkout -q FETCH_HEAD
+          git log -1 --format='%h %s'
+
+      - name: pytest
+        run: |
+          set -e
+          cd src
+          tar -c --exclude=.git . | docker run --rm -i \
+              -e PIP_DEFAULT_TIMEOUT=60 -e PIP_RETRIES=10 -e PIP_DISABLE_PIP_VERSION_CHECK=1 \
+              -e PIP_ROOT_USER_ACTION=ignore -e DEBIAN_FRONTEND=noninteractive \
+              python:3.12-slim sh -ec '
+            mkdir /src && tar -x -C /src && cd /src
+            apt-get -qq update >/dev/null </dev/null
+            apt-get -qq install -y --no-install-recommends git >/dev/null </dev/null
+            pip install -q -e ".[test]"
+            python -m pytest -q
+          '

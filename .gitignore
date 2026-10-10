@@ -1,0 +1,28 @@
+# Build artifacts: rebuilt in minutes, never committed
+*.db
+*.db-*
+*.npy
+index.db*
+index.manifest.json
+deltas/
+embed-usage.jsonl*
+
+# Deployment configuration lives with the deployment, not here.
+# Only examples/ carries sample configuration.
+/sources.yaml
+/.indexignore
+/calibrate.yaml
+*.local.yaml
+
+# Credentials
+.env
+*.key
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/

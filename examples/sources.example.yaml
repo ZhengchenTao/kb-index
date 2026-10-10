@@ -1,0 +1,80 @@
+# Example configuration. Runs as-is with the offline `hash` provider:
+#
+#   idx --config examples/sources.example.yaml --db /tmp/kb/work.db index
+#   idx --db /tmp/kb/index.db query "how do I roll back a release" -v
+#   kb-index-mcp --db /tmp/kb/index.db
+#
+# Relative paths (sources[].path, ignore_file) are resolved against this file's directory.
+# Everything the MCP server needs is written into index.db; clients never read this file.
+
+embedding:
+  # gemini  - Google Generative Language API (asymmetric document / query task types), key in GEMINI_API_KEY
+  # openai  - any OpenAI-compatible /embeddings endpoint: OpenAI, Ollama, LM Studio, vLLM, TEI, cloud vendors
+  # hash    - deterministic pseudo-vectors, no network; for trying things out and for tests
+  provider: hash
+  model: hash
+  dim: 256
+  batch: 50
+  # OpenAI-compatible example (local Ollama):
+  #   provider: openai
+  #   base_url: http://localhost:11434/v1
+  #   model: bge-m3
+  #   dim: 1024
+  #   api_key_env: OPENAI_API_KEY      # leave unset for servers without auth
+  #   query_prefix: ""                 # instruction for asymmetric models (E5: "query: ", Qwen3-Embedding: "Instruct: ...\nQuery: ")
+  #   document_prefix: ""              # E5: "passage: "
+  # Gemini example:
+  #   provider: gemini
+  #   model: gemini-embedding-001
+  #   dim: 1536
+  #   api_key_env: GEMINI_API_KEY
+
+search:
+  threshold: 0.3       # cosine floor for the vector leg; strongly model dependent, measure it with `idx calibrate`
+                       # (0.3 suits the offline hash provider used here; real embedding models sit higher, e.g. ~0.7)
+  rrf_k: 60
+
+chunk:
+  min: 30              # drop chunks shorter than this
+  max: 1200            # split chunks longer than this by paragraph, then by line
+  preamble_label: "(preamble)"   # heading for text before the first heading; changing it changes every such chunk
+
+ignore_file: .indexignore.example
+
+# Settings shipped to clients through index.db (all optional).
+client:
+  # Where clients keep checkouts, so results can say whether a repo exists locally and how to get it.
+  workspace: { nt: '%USERPROFILE%\src', posix: '~/src' }
+  agents_files: [AGENTS.md]
+  freshness_note: "The index is rebuilt every few hours; very recent edits may be missing."
+  # instructions: |            # replaces the built-in MCP server instructions
+  #   ...
+  # tool_descriptions:         # replaces the built-in description of any of the four tools
+  #   search: "..."
+
+sources:
+  - repo: handbook
+    type: dir                  # dir = plain directory (mtime + hash scan); git = repository, bare or not
+    path: docs/handbook
+    include: ["*.md", "sql/**/*.sql"]
+    domain: team
+    rule: "Published to the team site: no real hostnames, credentials or tokens; use placeholders."
+
+  - repo: notes
+    type: dir
+    path: docs/notes
+    include: ["*.md"]
+    domain: personal
+    domains:                   # path prefix -> domain (longest prefix wins)
+      "recipes/": life
+    rule: "Personal notes. Do not quote them into shared or public repositories."
+    clone_hint: "notes is a synced folder, not a git repository; open it through the sync client."
+
+  # A git source (bare repositories work, no working tree needed):
+  # - repo: wiki
+  #   type: git
+  #   path: /srv/git/team/wiki.git
+  #   ref: HEAD
+  #   url: https://git.example.com/team/wiki.git   # returned to clients that do not have it locally
+  #   include: ["*.md"]
+  #   domain: team

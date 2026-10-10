@@ -1,0 +1,16 @@
+# Queries for `idx calibrate --queries examples/calibrate.example.yaml`.
+# in:  questions your corpus answers (expect a high top-1 cosine)
+# out: questions it does not answer, including generic technical ones (the real false-positive risk)
+# The threshold belongs between max(out) and min(in). Re-run after changing the embedding model or dim.
+in:
+  - how do I roll back a release
+  - what port does the web application listen on
+  - how long are database dumps kept
+  - how much water goes into the sourdough
+  - wifi drops after the laptop wakes up
+out:
+  - how to bake croissants
+  - who won the 2014 world cup final
+  - how to configure TLS on a Kubernetes ingress
+  - what is a python decorator
+  - vaccination schedule for cats

@@ -1,0 +1,194 @@
+{
+ "handbook/AGENTS.md": [
+  [
+   "AGENTS > AGENTS | handbook",
+   "f8e31fc4eb78262a59c87ad1b2c549c23b712b71",
+   1,
+   0,
+   "237e87920fb35459228be602852498045ca52b03",
+   []
+  ]
+ ],
+ "handbook/archive/legacy-deploy.md": [
+  [
+   "legacy-deploy > Legacy deployment (rsync)",
+   "4ba6bf491eadb7848a6dbc3eeddb1480d10ee4d0",
+   1,
+   0,
+   "bd193a05d392d8e63f654ab99f076a44d0594f1e",
+   [
+    "wiki:deploy"
+   ]
+  ]
+ ],
+ "handbook/deploy.md": [
+  [
+   "deploy > (preamble)",
+   "c59084b7007d72d298480b32f60bb8a3c99b6d8b",
+   0,
+   0,
+   "b8ab988107c2c0b2531d9f3d2cfaeb0212f48932",
+   []
+  ],
+  [
+   "deploy > Deployment > Pipeline",
+   "cb751256a0b92e4fcd28274b257214ea0573f45d",
+   2,
+   1,
+   "38435c97f6f92398d2dad26ce35d93bf13a7c7d0",
+   []
+  ],
+  [
+   "deploy > Deployment > Rollback",
+   "2272d4da688cd9d573cb84f504b2939f5286dc49",
+   2,
+   2,
+   "01e9360bae81c4a688b703ae4b3de8a3181eb94e",
+   [
+    "wiki:backups"
+   ]
+  ],
+  [
+   "deploy > Deployment > Manual rollout over SSH (deprecated)",
+   "e4441ba60495c620a4dbdecc28c3935b78b1387a",
+   2,
+   3,
+   "f59151a264a4edc9a440129543c1089bb732c0b8",
+   []
+  ]
+ ],
+ "handbook/ops/AGENTS.md": [
+  [
+   "AGENTS > AGENTS | handbook/ops",
+   "1827cfe43813922a7b06fdce8b99345d3d84ab0a",
+   1,
+   0,
+   "1f25a6a6fc29084b22ecd0f6e68165d7fa5aa5bb",
+   []
+  ]
+ ],
+ "handbook/ops/backups.md": [
+  [
+   "backups > (preamble)",
+   "edfd7841a8ea5aa37ae1450592b968ed3df1fc38",
+   0,
+   0,
+   "53e2430135f61a204c0373a7805759bc179aee4e",
+   []
+  ],
+  [
+   "backups > Backups > What is backed up",
+   "5d1d44c1eef0f3f6770cd08d55c287fcf9552f0c",
+   2,
+   1,
+   "bd893161ede142fda9f223bacb938382f7bb83fb",
+   []
+  ],
+  [
+   "backups > Backups > Restore",
+   "88578b0e0b6153395ebbe8bd0df741dfb7570298",
+   2,
+   2,
+   "112520d94db550d2c00d3037dbaa5fa283b5eed7",
+   [
+    "wiki:deploy",
+    "md:../README.md"
+   ]
+  ]
+ ],
+ "handbook/README.md": [
+  [
+   "README > Team handbook",
+   "b84310e039f75a2fa31a77f67da956f3a718f2f0",
+   1,
+   0,
+   "ba5814e0f948f4ad3f3479cab7ea4246b7e15eab",
+   []
+  ],
+  [
+   "README > Team handbook > Where to start",
+   "c4dd06f6b0216bf71d848bfb7fc7506b97ab704d",
+   2,
+   1,
+   "7f6bf89c68f354cc13544c7980d44c40e7e56a98",
+   [
+    "wiki:deploy",
+    "md:ops/backups.md"
+   ]
+  ],
+  [
+   "README > Team handbook > Conventions",
+   "2e926d960c1ab390991b9f31d1c8fb41d964b37a",
+   2,
+   2,
+   "7bb04824d19eead3cd86b0148c90b363e2a2eb0e",
+   []
+  ]
+ ],
+ "handbook/sql/reports/daily.sql": [
+  [
+   "sql/reports/daily.sql",
+   "58c8e486c6d2e3350bd06b982efdee87c05b093e",
+   1,
+   0,
+   "b494f88a1043183f25ab03b223b5af47f62b0526",
+   []
+  ]
+ ],
+ "notes/home-network.md": [
+  [
+   "home-network > Home network",
+   "56b0c9e88450b8b979f443aa5f0dd87fe4568eed",
+   1,
+   0,
+   "07f993df2a9b06ad651976aec2338e140c3cc917",
+   []
+  ],
+  [
+   "home-network > Home network > Wi-Fi drops on the laptop",
+   "fc41437c81e83c16ff3de9948e43c9864fb5cffa",
+   2,
+   1,
+   "f84ddde9cb465f950af6de4202262bb556e2f27a",
+   [
+    "wiki:sourdough"
+   ]
+  ]
+ ],
+ "notes/private/todo.md": [
+  [
+   "todo > Private to-do list",
+   "d1858dc75dda4fcdd08a8f0d4ba4112083edae35",
+   1,
+   0,
+   "1235630a3f9449d1a37e757ff5f36441ec8a341a",
+   []
+  ]
+ ],
+ "notes/recipes/sourdough.md": [
+  [
+   "sourdough > Sourdough bread > Starter",
+   "b80a6a61675d5aeb174f0f0a621da0d499c9b81a",
+   2,
+   0,
+   "faa2485f9fd27bec4d1b725824ddaea96c6d24b1",
+   []
+  ],
+  [
+   "sourdough > Sourdough bread > Dough",
+   "bf0a53a7e076f8bb6fd8d51ab1088912c9a9dc95",
+   2,
+   1,
+   "4377776db46a01946b9cabf20c3ec1553ca81369",
+   []
+  ],
+  [
+   "sourdough > Sourdough bread > Baking",
+   "42e47901a827ce48eb43f6e0f82b995b4ca047c6",
+   2,
+   2,
+   "08a675d77a4fec6c375096127f251c63f301a881",
+   []
+  ]
+ ]
+}

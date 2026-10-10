@@ -1,0 +1,18 @@
+# Exclusion rules, gitignore style, matched against `repo/path/inside/repo`:
+#   **  crosses directories      *  does not cross /      ?  one character
+#   a trailing / means a directory (dir/**)
+#   a pattern without / matches a file name at any depth
+# `idx ignore` shows which files each rule hits. The list is published with the index (meta "ignore"), so a
+# search that finds nothing can tell the agent "this path is excluded, look in the local checkout".
+#
+# Excluded files never reach the database. Anything that is indexed can be read by every client of the
+# database: keep secrets, credentials and personal data out with rules here.
+
+notes/private/
+notes/.obsidian/
+notes/.trash/
+
+**/secrets/
+**/*.env
+**/node_modules/
+**/.git/

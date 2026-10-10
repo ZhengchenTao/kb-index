@@ -1,0 +1,4 @@
+# LF everywhere: the chunker golden snapshot hashes file contents, and the Docker / CI side is Linux.
+* text=auto eol=lf
+*.db binary
+*.gz binary

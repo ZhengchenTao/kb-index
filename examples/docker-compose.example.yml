@@ -1,0 +1,19 @@
+# Example: run the indexer as a one-shot container (cron / a scheduler calls `docker compose run --rm kb-index index`).
+services:
+  kb-index:
+    build: ..                       # or an image you built from this repository
+    image: kb-index:local
+    profiles: ["tool"]              # not started by `docker compose up`; only `docker compose run`
+    volumes:
+      - ./sources.yaml:/config/sources.yaml:ro
+      - ./.indexignore:/config/.indexignore:ro
+      - /srv/git:/sources/git:ro    # repositories, read-only (never write into a git server's bare repos)
+      - /srv/notes:/sources/notes:ro
+      - kb-data:/data               # work.db (with vector cache) + published index.db, deltas, manifest
+    environment:
+      - KB_CONFIG=/config/sources.yaml
+      - GEMINI_API_KEY              # passed through from the shell that runs docker compose
+      - OPENAI_API_KEY
+
+volumes:
+  kb-data:
