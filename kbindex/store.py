@@ -97,6 +97,28 @@ class Store:
         self.db.execute("delete from chunks where repo=?", (repo,))
         self.db.execute("delete from files where repo=?", (repo,))
 
+    REPO_META_PREFIXES = ("head:", "rule:", "url:", "hint:")
+
+    def delete_repo_meta(self, repo: str) -> None:
+        """Drop the per-repo meta rows (head / rule / url / hint) of a repo that left the config."""
+        for pre in self.REPO_META_PREFIXES:
+            self.db.execute("delete from meta where key=?", (pre + repo,))
+
+    def repos_in_db(self) -> set[str]:
+        """Every repo the database still knows about: indexed files or per-repo meta rows."""
+        out = {r[0] for r in self.db.execute("select distinct repo from files")}
+        out |= {r[0] for r in self.db.execute("select distinct repo from chunks")}
+        for (k,) in self.db.execute("select key from meta"):
+            for pre in self.REPO_META_PREFIXES:
+                if k.startswith(pre) and len(k) > len(pre):
+                    out.add(k[len(pre):])
+        return out
+
+    def stale_repos(self, configured) -> list[str]:
+        """Repos present in the database but no longer in the config. The indexer never touches them, so their
+        chunks, rule and url stay searchable until `idx rebuild --repo R` removes them."""
+        return sorted(self.repos_in_db() - set(configured))
+
     # ---------------------------------------------------------------- cache
     def cached_vectors(self, hashes: list[str], model: str, dim: int | None = None) -> dict[str, bytes]:
         """Cached vectors for these text hashes. With `dim`, a vector of the wrong width counts as a miss

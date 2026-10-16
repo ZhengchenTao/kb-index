@@ -138,6 +138,11 @@ idx apply-delta --db FILE DELTA.db.gz ...
 `idx index` 只在客户端读得到的东西真的变了（chunk、向量、规则、URL、阈值、排除规则、客户端设置）时才发布，
 否则打印 `unchanged vs published index.db, not published`。每次发布都是一个新版本、所有客户端都要拉，空跑不能产生版本。
 
+从 `sources.yaml` 撤掉一个源不会删它的数据（写错名字、临时注释掉一个源都不该把库清掉）。清理之前它的 chunk 照样能搜到、
+`rule` / `url` 照样出现在每次回答里，所以每次 `idx index` 都会打印 `stale source: R is in the database but not in the config ...
+Remove it with: idx rebuild --repo R`。这条 `rebuild` 删掉该仓的 chunk、files 和逐仓 meta（`head:` / `rule:` / `url:` / `hint:`）
+并发布。`rebuild --repo` 给的名字既不在配置里、也不在库里时直接拒绝。
+
 ### 标定阈值
 
 余弦阈值完全取决于模型（和维度）。写几条库里能答的问题、几条答不了的问题（要包括通用技术题，误命中主要来自它们），
@@ -190,6 +195,7 @@ git 服务器的裸仓一律只读挂载，绝不在里面执行任何写操作�
 |---|---|
 | `rule`、`url`、`clone_hint`、`client.*`、`.indexignore`、`threshold` | 只改 meta：发布一个很小的增量 |
 | `domain` / `domains` | 下次 `idx rebuild --repo R` 时重写 chunk，向量从缓存取（免费） |
+| 撤掉一个源 | 跑 `idx rebuild --repo R` 之前什么都不变（每次 `idx index` 都会提醒）；之后发布一个去掉该仓的增量 |
 | `chunk.min` / `max` / `preamble_label`、切块代码 | chunk 文本变了：重新 embed（花钱）、增量包很大 |
 | `model`、`dim`、`provider`、`document_prefix` | 全部重新 embed：`idx rebuild --purge-cache`，然后重新标定 |
 

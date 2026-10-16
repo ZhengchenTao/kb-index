@@ -184,3 +184,56 @@ def test_calibrate(built, tmp_path, capsys):
     res = json.loads(capsys.readouterr().out)
     assert res["inside"][0]["path"] == "handbook/ops/backups.md"
     assert {"inside_min", "outside_max", "gap", "at_current"} <= set(res)
+
+
+def test_removed_source_is_reported_not_deleted(built, capsys):
+    """A source dropped from the config keeps its data (no silent deletes); `index` says so and names the
+    cleanup command, and `rebuild --repo R` removes chunks and per-repo meta, then publishes."""
+    cfg_path = built["config"]
+    text = cfg_path.read_text(encoding="utf-8")
+    start = text.index("  - repo: notes")
+    trimmed = cfg_path.with_name("sources.trimmed.yaml")
+    trimmed.write_text(text[:start], encoding="utf-8")
+    assert "repo: notes" not in trimmed.read_text(encoding="utf-8")
+    capsys.readouterr()
+
+    assert run_cli("--config", str(trimmed), "--db", str(built["work"]), "index") == 0
+    out = capsys.readouterr().out
+    assert "stale source: notes" in out and "idx rebuild --repo notes" in out
+    # (this run does publish once: hint:notes is a config-derived key and sync_extended_meta drops it)
+    assert run_cli("--config", str(trimmed), "--db", str(built["work"]), "index") == 0
+    out = capsys.readouterr().out
+    assert "stale source: notes" in out and "unchanged vs published index.db, not published" in out
+    m = meta_of(built["work"])
+    assert "rule:notes" in m and "url:notes" in m and "head:notes" in m
+    st = Store(built["work"], readonly=True)
+    assert st.stale_repos(["handbook"]) == ["notes"]
+    st.close()
+
+    assert run_cli("--config", str(trimmed), "--db", str(built["work"]), "rebuild", "--repo", "typo") == 2
+    assert run_cli("--config", str(trimmed), "--db", str(built["work"]), "rebuild", "--repo", "notes") == 0
+    out = capsys.readouterr().out
+    assert "removed notes (not in the config)" in out and "published" in out
+    pub = sqlite3.connect(built["index"])
+    assert pub.execute("select count(*) from chunks where repo='notes'").fetchone()[0] == 0
+    assert pub.execute("select count(*) from files where repo='notes'").fetchone()[0] == 0
+    pub.close()
+    m = meta_of(built["index"])
+    assert not [k for k in m if k.endswith(":notes")]
+    assert "rule:handbook" in m and m["version"] == "3"
+
+    assert run_cli("--config", str(trimmed), "--db", str(built["work"]), "index") == 0
+    out = capsys.readouterr().out
+    assert "stale source" not in out and "unchanged vs published index.db, not published" in out
+
+
+def test_stale_meta_only(tmp_path):
+    """Leftover meta rows without any chunks (an older rebuild that only dropped chunks) still count as stale."""
+    st = Store(tmp_path / "w.db")
+    st.set_meta("head:gone", "abc")
+    st.set_meta("url:gone", "https://example.com/gone.git")
+    st.set_meta("rule:kept", "x")
+    assert st.stale_repos(["kept"]) == ["gone"]
+    st.delete_repo_meta("gone")
+    assert st.stale_repos(["kept"]) == []
+    st.close()

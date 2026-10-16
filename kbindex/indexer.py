@@ -32,6 +32,7 @@ class RunReport:
     embedded: int = 0
     cached: int = 0
     failures: list[str] = field(default_factory=list)
+    stale: list[str] = field(default_factory=list)   # in the database, no longer in the config (never auto-deleted)
     elapsed: float = 0.0
 
 
@@ -123,6 +124,11 @@ def run(cfg: Config, ignore: IgnoreRules, store: Store, repos: list[str] | None 
         force: bool = False, dry_run: bool = False, embedder=None) -> RunReport:
     rep = RunReport(started=time.strftime("%Y-%m-%dT%H:%M:%S"))
     t0 = time.time()
+    # A source removed from the config is not cleaned up automatically (a typo or a temporarily commented-out
+    # source must not delete data); report it so the operator can run `idx rebuild --repo R`.
+    rep.stale = store.stale_repos(s.repo for s in cfg.sources)
+    for r in rep.stale:
+        log(f"! {r}: in the database but not in the config; remove it with: idx rebuild --repo {r}")
     all_pending: list[Pending] = []
     for src in cfg.sources:
         if repos and src.repo not in repos:

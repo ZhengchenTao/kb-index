@@ -187,6 +187,13 @@ idx apply-delta --db FILE DELTA.db.gz ...
 thresholds, exclusions, client settings); otherwise it prints `unchanged vs published index.db, not
 published`. Every publish is a new version every client pulls, so a no-op run must not create one.
 
+Removing a source from `sources.yaml` does not delete its data: a typo or a source commented out for a moment
+must not wipe anything. Until it is cleaned up its chunks stay searchable and its `rule` / `url` stay in every
+answer, so each `idx index` prints `stale source: R is in the database but not in the config ... Remove it
+with: idx rebuild --repo R`. That `rebuild` drops the repo's chunks, files and per-repo meta (`head:` /
+`rule:` / `url:` / `hint:`) and publishes. `rebuild --repo` with a name that is neither configured nor in the
+database is refused.
+
 ### Calibrating the threshold
 
 The cosine threshold depends entirely on the model (and its dimension). Write a few questions your corpus
@@ -269,6 +276,7 @@ What changes the index, and what it costs:
 |---|---|
 | `rule`, `url`, `clone_hint`, `client.*`, `.indexignore`, `threshold` | meta only: one publish of a small delta |
 | `domain` / `domains` | chunks rewritten on the next `idx rebuild --repo R`, vectors reused from the cache (free) |
+| removing a source | nothing until `idx rebuild --repo R` (each `idx index` reminds you); then a delta without that repo |
 | `chunk.min` / `max` / `preamble_label`, chunker code | new chunk texts: re-embedding (paid) and large deltas |
 | `model`, `dim`, `provider`, `document_prefix` | everything re-embedded: `idx rebuild --purge-cache`, then recalibrate |
 

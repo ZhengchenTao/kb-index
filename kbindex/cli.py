@@ -2,7 +2,8 @@
 
   idx index   [--repo R ...] [--force] [--dry-run] [--no-publish] [--publish-always]
                                                       incremental index; publishes only when something changed
-  idx rebuild [--repo R ...] [--purge-cache]          drop chunks and rebuild; the vector cache is kept (free)
+  idx rebuild [--repo R ...] [--purge-cache]          drop chunks and rebuild; the vector cache is kept (free).
+                                                      A repo no longer in the config is removed (chunks and meta)
   idx status                                          files / chunks / last run / failures
   idx query   "some question" [-k 5] [--repo R] [--domain D] [--expand] [-v]
                                                       try a query and print both legs' scores
@@ -65,6 +66,7 @@ def cmd_index(a) -> int:
     rep = run(cfg, ignore, store, repos=a.repo, force=a.force, dry_run=a.dry_run)
     print(json.dumps({"per_repo": rep.per_repo, "embedded": rep.embedded, "cached": rep.cached,
                       "failures": rep.failures, "elapsed_s": round(rep.elapsed)}, ensure_ascii=False, indent=2))
+    _print_stale(rep.stale)
     if not a.dry_run and not a.no_publish and not rep.failures:
         # Publish only when the work database differs from the last published one in anything clients read
         # (every publish is a new version every client pulls). Compare the two databases' state, not "what
@@ -92,14 +94,31 @@ def _needs_publish(store: Store) -> bool:
         old.close()
 
 
+def _print_stale(stale: list[str]) -> None:
+    for r in stale:
+        print(f"stale source: {r} is in the database but not in the config; its chunks, rule and url stay "
+              f"searchable. Remove it with: idx rebuild --repo {r}")
+
+
 def cmd_rebuild(a) -> int:
     from .indexer import run
     cfg = load_config(a.config)
     ignore = IgnoreRules.for_config(cfg, a.indexignore)
     store = Store(_db_path())
-    repos = a.repo or [s.repo for s in cfg.sources]
+    configured = [s.repo for s in cfg.sources]
+    repos = a.repo or configured
+    stale = set(store.stale_repos(configured))
+    unknown = [r for r in repos if r not in configured and r not in stale]
+    if unknown:
+        print(f"unknown repo: {', '.join(unknown)} (neither in the config nor in the database)", file=sys.stderr)
+        store.close()
+        return 2
     for r in repos:
         store.delete_repo(r)
+        if r in stale:
+            # Not in the config any more: drop its per-repo meta too, otherwise rule:/url: keep advertising it
+            store.delete_repo_meta(r)
+            print(f"removed {r} (not in the config)")
     if a.purge_cache:
         store.purge_cache()
     store.commit()
