@@ -43,7 +43,7 @@ neighbors shows what a document links to and what links to it (relations written
 repo_rules / rule in every result is that repo's one-line rule (for example "public site: no secrets"). Check it before quoting content. It is a one-line rule, not the repo's instructions; you need both.
 agents_chain lists, per repo, the instruction files ({agents_files}) that apply to the hit paths, root first. Read them before writing code, changing configuration or drawing conclusions: local_exists=true -> read <local_path>/<entry>; otherwise read_doc(entry, repo=...).
 repos / repo_info give each repo's canonical clone_url{workspace_note}.
-found=false means the corpus has nothing: do not make things up. Check `excluded` first (paths that are never indexed); the target may be there, so look in the local checkout.{freshness}
+found=false means this search found no match, not that the corpus contains nothing. Check query terms, filters and `excluded`; consult local files when needed.{freshness}
 Every search / grep hit carries relation annotations: links.in / links.in_top = who links here (documents linked from many overviews are the main ones), links.out_top = where it links to.
 status="archived" + status_reason marks an archived / deprecated / superseded document or section: do not cite it as current, follow links.in_top to the current document. doc_status is the frontmatter status (draft / implemented ...).
 When asked "is this current or deprecated / who else mentions it", bring status and links into the answer instead of judging by content alone."""
